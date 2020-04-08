@@ -1,0 +1,60 @@
+{
+    "Comment": "Start DMS Tasks.",
+    "StartAt": "TaskDDL",
+    "States": {
+      "TaskDDL": {
+        "Type": "Task",
+        "Resource": "arn:aws:states:::lambda:invoke",
+        "Parameters": {
+          "FunctionName": "arn:aws:lambda:us-west-2:663422878612:function:DMSTaskController",
+          "Payload": {
+            "Input": "{Action: 'Start', taskArn: 'arn:aws:dms:us-west-2:663422xxxx:task:1111'}"
+          }
+        },
+        "Next": "Wait_for_ddl"
+      },
+      "Wait_for_ddl": {
+        "Type": "Wait",
+        "Seconds": 300,
+        "Next": "OtherTasks"
+      },
+      "OtherTasks": {
+        "Type": "Parallel",
+        "End": true,
+        "Branches": [
+          {
+            "StartAt": "Task1",
+            "States": {
+              "Task1": {
+                "Type": "Task",
+                "Resource": "arn:aws:states:::lambda:invoke",
+                "Parameters": {
+                  "FunctionName": "arn:aws:lambda:us-west-2:663422878612:function:DMSTaskController",
+                  "Payload": {
+                    "Input": "{Action: 'Start', taskArn: 'arn:aws:dms:us-west-2:663422xxxx:task:1111'}"
+                  }
+                },
+                "End": true
+              }
+            }
+          },
+          {
+            "StartAt": "Task2",
+            "States": {
+              "Task2": {
+                "Type": "Task",
+                "Resource": "arn:aws:states:::lambda:invoke",
+                "Parameters": {
+                  "FunctionName": "arn:aws:lambda:us-west-2:663422878612:function:DMSTaskController",
+                  "Payload": {
+                    "Input": "{Action: 'Stop', taskArn: 'arn:aws:dms:us-west-2:663422xxxx:task:1111'}"
+                  }
+                },
+                "End": true
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
